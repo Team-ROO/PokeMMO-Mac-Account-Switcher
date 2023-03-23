@@ -1,4 +1,4 @@
-# PokeMMO Credentials Swap
+# PokeMMO Mac Account Switcher
 
 Just a simple Mac-specific script that swaps which `savedcredentials.properties` document is currently active in your PokeMMO folder. This allows the user to have multiple accounts saved on a machine and to easily swap between them without logging in and out.
 
