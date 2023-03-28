@@ -37,29 +37,50 @@ accounts=()
 # Iterate through all found saved credentials files and extract account usernames
 for item in "${files[@]}"
 do
-  accounts+=("$(grep -o 'client\.saved_credentials\.lastusername=[^[:space:]]*' "${item}" | cut -d= -f2)")
-done
-
-# Prompt the user to select an account
-echo "Select an account:"
-selectedFileIndex=0
-selectedAccountName="WILL CHANGE"
-select choice in "${accounts[@]}"
-do
-  if [[ -n $choice ]]; then
-    # Find the selected account's index and username
-    for index in $(seq 1 ${#accounts[@]})
-    do
-      if [[ "${accounts[index]}" == "$choice" ]]
-      then
-        echo "You chose ${accounts[index]}"
-        selectedFileIndex=$index
-        selectedAccountName=${accounts[index]}
-        break 2
-      fi
-    done
+  accountName=("$(grep -o 'client\.saved_credentials\.lastusername=[^[:space:]]*' "${item}" | cut -d= -f2)")
+  if [[ $accountName != $activeAccountName ]]; then
+    accounts+=("$accountName")
   fi
 done
+
+# If there are 1 or fewer files, exit the program
+if [[ ${#files[@]} -le 1 ]]; then
+  echo "There are 1 or fewer accounts found. Exiting the program."
+  exit 0
+# If there are exactly 2 files, swap the files without prompting the user
+elif [[ ${#files[@]} == 2 ]]; then
+  for item in "${files[@]}"
+  do
+    accountName=("$(grep -o 'client\.saved_credentials\.lastusername=[^[:space:]]*' "${item}" | cut -d= -f2)")
+    if [[ $accountName != $activeAccountName ]]; then
+      selectedFileIndex=$(($selectedFileIndex+1))
+      selectedAccountName=$accountName
+      break
+    fi
+    selectedFileIndex=$(($selectedFileIndex+1))
+  done
+else
+  # Prompt the user to select an account
+  echo "Select an account:"
+  selectedFileIndex=0
+  selectedAccountName="WILL CHANGE"
+  select choice in "${accounts[@]}"
+  do
+        if [[ -n $choice ]]; then
+      # Find the selected account's index and username
+      for index in $(seq 1 ${#accounts[@]})
+      do
+        if [[ "${accounts[index]}" == "$choice" ]]
+        then
+          echo "You chose ${accounts[index]}"
+          selectedFileIndex=$index
+          selectedAccountName=${accounts[index]}
+          break 2
+        fi
+      done
+    fi
+  done
+fi
 
 # Define the filenames for the active and selected credentials files
 activeFileName="savedcredentials.properties"
@@ -76,6 +97,6 @@ else
   mv "${files[selectedFileIndex]}" "${pokemmoConfig}/${activeFileName}"
 
   # Inform the user that the selected account is now active
-  echo "The selected account is now active."
+  echo $selectedAccountName "is now active."
   echo "Please reload PokeMMO."
 fi
