@@ -3,6 +3,14 @@
 # Define the saveFileDirectory
 saveFileDirectory='pokemmo-client-live/config/'
 
+# Define PokeMMO application paths
+pokeMMOJavaProcess="PokeMMO.app/Contents/runtime/Contents/Home/bin/java"
+pokeMMOAppPath="/Applications/PokeMMO.app"
+
+# Close the PokeMMO app at the start of the script
+pkill -f "PokeMMO.app/Contents/runtime/Contents/Home/bin/java"
+
+
 # Check if POKEMMO_DIR is set in the .zshrc file
 if grep -q "export POKEMMO_DIR=" ~/.zshrc; then
   :
@@ -97,6 +105,8 @@ else
   mv "${files[selectedFileIndex]}" "${pokemmoConfig}/${activeFileName}"
 
   # Inform the user that the selected account is now active
-  echo $selectedAccountName "is now active."
-  echo "Please reload PokeMMO."
+echo $selectedAccountName "is now active."
+
+  # Reopen the PokeMMO app after the credentials have been swapped
+  open "$pokeMMOAppPath"
 fi
